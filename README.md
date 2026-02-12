@@ -156,6 +156,25 @@ python src/train_multilabel_classifier.py \
 - val基準で採用する場合: `resnet50`
 - test最大値を参考にする場合: `resnet101`
 
+### 追加実験（性能改善）
+
+#### EfficientNetV2-S（2段階学習 + しきい値最適化）
+
+- モデル: `multilabel_effnetv2s_2stage_tunedthr.pt`
+- test (threshold=0.5): micro F1 = 0.6354, macro F1 = 0.6016
+- test (class-wise tuned thresholds): micro F1 = 0.6852, macro F1 = 0.6476
+
+#### アンサンブル（EffNetV2-S + ResNet101 + ResNet50）
+
+- test (threshold=0.5): micro F1 = 0.6712, macro F1 = 0.6351
+- test (micro最適化threshold): micro F1 = 0.6856, macro F1 = 0.6378
+- metrics: `/content/drive/MyDrive/RG/models/ensemble_microopt_metrics.json`
+
+現時点の採用候補:
+
+- `micro F1` 最優先: アンサンブル + micro最適化threshold
+- 単一モデル運用: EfficientNetV2-S + class-wise tuned thresholds
+
 ## Git運用メモ
 
 - GitHubに上げる: コード、設定、CSVメタデータ（必要な範囲）

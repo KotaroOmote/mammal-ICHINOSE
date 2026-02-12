@@ -26,7 +26,7 @@
 - `src/build_multilabel_dataset.py`  
   画像CSV + 動画CSV を統合し、最終CSVと split CSV を作成
 - `src/train_multilabel_classifier.py`  
-  PyTorch（ResNet18）で multi-label 学習・評価を実行
+  PyTorch（ResNet系）で multi-label 学習・評価を実行
 - `metadata/rg_video_list.txt`  
   指定動画リスト
 
@@ -138,7 +138,23 @@ python src/train_multilabel_classifier.py \
 
 - split: train 1227 / val 263 / test 263
 - video leakage: train∩val=0, train∩test=0, val∩test=0
-- test: micro F1=0.5975, macro F1=0.5584
+
+### ResNet比較（同一条件）
+
+条件: epochs=12, batch_size=32, threshold=0.5, 同一split
+
+| arch | test_micro_f1 | test_macro_f1 | best_val_micro_f1 |
+|---|---:|---:|---:|
+| resnet101 | 0.635579 | 0.605882 | 0.654110 |
+| resnet50  | 0.626263 | 0.600476 | 0.658744 |
+| resnet34  | 0.621622 | 0.590136 | 0.595601 |
+| resnet152 | 0.617241 | 0.570284 | 0.648936 |
+| resnet18  | 0.587219 | 0.556667 | 0.609428 |
+
+運用方針:
+
+- val基準で採用する場合: `resnet50`
+- test最大値を参考にする場合: `resnet101`
 
 ## Git運用メモ
 

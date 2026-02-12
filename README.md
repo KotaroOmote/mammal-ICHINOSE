@@ -36,14 +36,29 @@
 pip install -r requirements.txt
 ```
 
-Colab の場合:
+Colab の場合（リポジトリを clone した場所で実行）:
 
 ```bash
-!pip -q install -r "/content/drive/MyDrive/code260212/requirements.txt"
+!pip -q install -r requirements.txt
 ```
 
 `OPENAI_API_KEY` は環境変数または Colab Secrets に登録してください。  
 キー文字列をノートブックやコードに直書きしないでください。
+
+## 公開データセット
+
+- Hugging Face Datasets: [KotaroOmote/rg-7wildlife-multilabel-v1](https://huggingface.co/datasets/KotaroOmote/rg-7wildlife-multilabel-v1)
+
+ダウンロード例:
+
+```python
+from huggingface_hub import snapshot_download
+snapshot_download(
+    repo_id="KotaroOmote/rg-7wildlife-multilabel-v1",
+    repo_type="dataset",
+    local_dir="./dataset/rg-7wildlife-multilabel-v1",
+)
+```
 
 ## 1. アノテーション（動画+画像）
 
@@ -53,8 +68,8 @@ Colab の場合:
 python src/annotate_videos_with_openai.py \
   --video-list-file metadata/rg_video_list.txt \
   --image-dir data/raw \
-  --output-root "/content/drive/MyDrive/RG/ai_annotated_frames" \
-  --metadata-csv "/content/drive/MyDrive/RG/metadata/openai_video_annotations.csv" \
+  --output-root "./artifacts/ai_annotated_frames" \
+  --metadata-csv "./artifacts/metadata/openai_video_annotations.csv" \
   --model "gpt-5.2" \
   --sample-every-n-frames 45 \
   --max-frames-per-video 180
@@ -64,10 +79,10 @@ python src/annotate_videos_with_openai.py \
 
 ```bash
 python src/annotate_videos_with_openai.py \
-  --input-dir "/content/drive/MyDrive/RG/no_videos" \
-  --image-dir "/content/drive/MyDrive/code260212/data/raw" \
-  --output-root "/content/drive/MyDrive/RG/ai_annotated_frames" \
-  --metadata-csv "/content/drive/MyDrive/RG/metadata/openai_image_annotations.csv" \
+  --input-dir "./data/no_videos" \
+  --image-dir "./data/raw" \
+  --output-root "./artifacts/ai_annotated_frames" \
+  --metadata-csv "./artifacts/metadata/openai_image_annotations.csv" \
   --model "gpt-5.2"
 ```
 
@@ -75,9 +90,9 @@ python src/annotate_videos_with_openai.py \
 
 ```bash
 python src/build_multilabel_dataset.py \
-  --image-csv "/content/drive/MyDrive/RG/metadata/openai_image_annotations.csv" \
-  --video-csv "/content/drive/MyDrive/RG/metadata/openai_video_annotations.csv" \
-  --output-dir "/content/drive/MyDrive/RG/metadata" \
+  --image-csv "./artifacts/metadata/openai_image_annotations.csv" \
+  --video-csv "./artifacts/metadata/openai_video_annotations.csv" \
+  --output-dir "./artifacts/metadata" \
   --seed 42
 ```
 
@@ -94,12 +109,12 @@ python src/build_multilabel_dataset.py \
 
 ```bash
 python src/train_multilabel_classifier.py \
-  --train-csv "/content/drive/MyDrive/RG/metadata/train_known.csv" \
-  --val-csv "/content/drive/MyDrive/RG/metadata/val_known.csv" \
-  --test-csv "/content/drive/MyDrive/RG/metadata/test_known.csv" \
-  --model-out "/content/drive/MyDrive/RG/models/multilabel_resnet18_best.pt" \
-  --metrics-out "/content/drive/MyDrive/RG/models/multilabel_test_metrics.json" \
-  --history-out "/content/drive/MyDrive/RG/models/multilabel_train_history.csv" \
+  --train-csv "./artifacts/metadata/train_known.csv" \
+  --val-csv "./artifacts/metadata/val_known.csv" \
+  --test-csv "./artifacts/metadata/test_known.csv" \
+  --model-out "./artifacts/models/multilabel_resnet18_best.pt" \
+  --metrics-out "./artifacts/models/multilabel_test_metrics.json" \
+  --history-out "./artifacts/models/multilabel_train_history.csv" \
   --arch "resnet18" \
   --epochs 12 \
   --batch-size 32 \
@@ -122,12 +137,12 @@ python src/train_multilabel_classifier.py \
 
 ```bash
 python src/train_multilabel_classifier.py \
-  --train-csv "/content/drive/MyDrive/RG/metadata/train_known.csv" \
-  --val-csv "/content/drive/MyDrive/RG/metadata/val_known.csv" \
-  --test-csv "/content/drive/MyDrive/RG/metadata/test_known.csv" \
-  --model-out "/content/drive/MyDrive/RG/models/multilabel_resnet50_best.pt" \
-  --metrics-out "/content/drive/MyDrive/RG/models/multilabel_resnet50_metrics.json" \
-  --history-out "/content/drive/MyDrive/RG/models/multilabel_resnet50_history.csv" \
+  --train-csv "./artifacts/metadata/train_known.csv" \
+  --val-csv "./artifacts/metadata/val_known.csv" \
+  --test-csv "./artifacts/metadata/test_known.csv" \
+  --model-out "./artifacts/models/multilabel_resnet50_best.pt" \
+  --metrics-out "./artifacts/models/multilabel_resnet50_metrics.json" \
+  --history-out "./artifacts/models/multilabel_resnet50_history.csv" \
   --arch "resnet50" \
   --epochs 12 \
   --batch-size 32 \
@@ -168,7 +183,7 @@ python src/train_multilabel_classifier.py \
 
 - test (threshold=0.5): micro F1 = 0.6712, macro F1 = 0.6351
 - test (micro最適化threshold): micro F1 = 0.6856, macro F1 = 0.6378
-- metrics: `/content/drive/MyDrive/RG/models/ensemble_microopt_metrics.json`
+- metrics: `./artifacts/models/ensemble_microopt_metrics.json`
 
 現時点の採用候補:
 
